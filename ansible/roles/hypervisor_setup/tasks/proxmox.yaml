@@ -1,0 +1,28 @@
+- name: Ensure Proxmox variables are defined
+  ansible.builtin.set_fact:
+    proxmox_api_host: "{{ api_host | default(lookup('ansible.builtin.env', 'PROXMOX_API_HOST')) }}"
+    proxmox_api_user: "{{ api_user | default(lookup('ansible.builtin.env', 'PROXMOX_API_USER')) }}"
+    proxmox_api_token_id: "{{ api_token_id | default(lookup('ansible.builtin.env', 'PROXMOX_API_TOKEN_ID')) }}"
+    proxmox_api_token_secret: "{{ api_token_secret | default(lookup('ansible.builtin.env', 'PROXMOX_API_TOKEN_SECRET')) }}"
+
+- name: Assert required Proxmox variables are set
+  ansible.builtin.assert:
+    that:
+      - proxmox_api_host != ''
+      - proxmox_api_user != ''
+      - proxmox_api_token_id != ''
+      - proxmox_api_token_secret != ''
+
+- name: Make sure connection to Proxmox works
+  community.general.proxmox_node_info:
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_token_id: "{{ proxmox_api_token_id }}"
+    api_token_secret: "{{ proxmox_api_token_secret }}"
+  register: proxmox_nodes_info
+
+
+- name: Assert PVE has a node
+  ansible.builtin.assert:
+    that:
+      - (proxmox_nodes_info['proxmox_nodes'] | length) > 0

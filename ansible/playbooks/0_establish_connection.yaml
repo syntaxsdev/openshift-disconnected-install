@@ -1,0 +1,9 @@
+- name: Establish connection to the hypervisor
+  gather_facts: false
+  connection: local
+  hosts: localhost
+
+  tasks:
+    - name: Hypervisor setup
+      ansible.builtin.import_role:
+        name: hypervisor_setup

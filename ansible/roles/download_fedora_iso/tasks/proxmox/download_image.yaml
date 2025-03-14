@@ -1,0 +1,9 @@
+- name: Download the Qcow2 Image
+  ansible.builtin.get_url:
+    url: "{{ download_fedora_iso_link }}"
+    dest: "{{ local_iso_dir }}/{{ download_fedora_iso_name }}"
+    mode: "0644"
+
+- name: Import QCOW2 Disk to Proxmox `local` Storage
+  ansible.builtin.command:
+    cmd: "qm importdisk {{ vm_id }} {{ qcow2_file }} {{ storage }} --format qcow2"

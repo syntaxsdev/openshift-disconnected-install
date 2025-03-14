@@ -1,0 +1,32 @@
+- name: Ensure qemu-img is available
+  ansible.builtin.command: "qemu-img --version"
+  register: qemu_img_version
+  changed_when: false
+
+- name: Fail if qemu-img is not found
+  ansible.builtin.fail:
+    msg: "qemu-img is not installed! Please install it manually or ensure Proxmox has it."
+  when: qemu_img_version.rc != 0
+
+- name: Ensure ISO Storage Variables Exists
+  ansible.builtin.assert:
+    that:
+      - local_iso_dir != ''
+
+- name: Ensure ISO dir exists
+  ansible.builtin.file:
+    path: "{{ local_iso_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Check if ISO already exists
+  ansible.builtin.stat:
+    path: "{{ local_iso_dir }}/{{download_fedora_iso_name }}"
+  register: file_stat
+
+- name: Download the ISO if doesn't exist
+  ansible.builtin.import_tasks: download_image.yaml
+  when: not file_stat.stat.exists
+
+- name: Create the VM
+  ansible.builtin.import_tasks: create_vm.yaml

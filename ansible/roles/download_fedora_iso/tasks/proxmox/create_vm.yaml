@@ -59,14 +59,12 @@
 
 - name: Attach Cloud-Init Drive (RAW Format)
   ansible.builtin.command:
-    cmd: "qm set {{ proxmox_registry_vm_id }} --ide2 local-lvm:cloudinit,format=raw"
+    cmd: "qm set {{ proxmox_registry_vm_id }} --ide2 {{ proxmox_storage }}:cloudinit,format=raw"
   delegate_to: proxmox-node
 
-- name: Import QCOW2 Disk to Proxmox `local` Storage
+- name: Import QCOW2 Disk to Proxmox Storage
   ansible.builtin.command:
-    cmd: "qm importdisk {{ proxmox_registry_vm_id }} {{ download_fedora_iso_image_path }} {{ storage }}"
-  vars:
-    storage: "local-lvm"
+    cmd: "qm importdisk {{ proxmox_registry_vm_id }} {{ download_fedora_raw_image_path }} {{ proxmox_storage }}"
   delegate_to: proxmox-node
 
 - name: Configure Cloud-Init Networking to Use DHCP
@@ -123,7 +121,7 @@
 
 - name: Attach Cloud-Init Drive (RAW Format)
   ansible.builtin.command:
-    cmd: "qm set {{ proxmox_registry_vm_id }} --ide2 local-lvm:cloudinit,format=raw"
+    cmd: "qm set {{ proxmox_registry_vm_id }} --ide2 {{ proxmox_storage }}:cloudinit,format=raw"
   delegate_to: proxmox-node
 
 - name: Attach Cloud-Init Custom Script to VM
@@ -133,7 +131,7 @@
 
 - name: Attach Imported Disk to VM
   ansible.builtin.command:
-    cmd: "qm set {{ proxmox_registry_vm_id }} --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-{{ proxmox_registry_vm_id }}-disk-0"
+    cmd: "qm set {{ proxmox_registry_vm_id }} --scsihw virtio-scsi-pci --scsi0 {{ proxmox_storage }}:vm-{{ proxmox_registry_vm_id }}-disk-0"
   delegate_to: proxmox-node
 
 - name: Set Boot Order

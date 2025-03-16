@@ -23,11 +23,11 @@
 
 - name: Display extracted IPv4 addresses
   ansible.builtin.set_fact:
-    proxmox_regitry_vm_id: "{{ ip_output.stdout }}"
+    proxmox_registry_vm_ip: "{{ ip_output.stdout }}"
 
 - name: Wait for VM to Get an IP
   ansible.builtin.wait_for:
-    host: "{{ proxmox_regitry_vm_id }}"
+    host: "{{ proxmox_registry_vm_ip }}"
     port: 22
     delay: 10
     timeout: 120

@@ -1,0 +1,45 @@
+- name: Wait 30 seconds before proceeding
+  ansible.builtin.pause:
+    seconds: 30
+
+- name: Wait until the VM agent returns valid JSON
+  ansible.builtin.command:
+    cmd: "qm agent {{ proxmox_registry_vm_id }} network-get-interfaces"
+  delegate_to: proxmox-node
+  register: vm_network_data_raw
+  changed_when: false
+
+- name: Save data to a temp file in /tmp/
+  ansible.builtin.copy:
+    content: "{{ vm_network_data_raw.stdout_lines | to_nice_json }}"
+    dest: "/tmp/registry_network_info.json"
+    mode: '0644'
+
+- name: Run Python script to extract IPv4 addresses
+  ansible.builtin.command:
+    cmd: python3 "{{ role_path }}/tasks/proxmox/get_ip.py"
+  register: ip_output
+  changed_when: false
+
+- name: Display extracted IPv4 addresses
+  ansible.builtin.set_fact:
+    proxmox_regitry_vm_id: "{{ ip_output.stdout }}"
+
+- name: Wait for VM to Get an IP
+  ansible.builtin.wait_for:
+    host: "{{ proxmox_regitry_vm_id }}"
+    port: 22
+    delay: 10
+    timeout: 120
+    state: started
+
+- name: Display Success Message
+  ansible.builtin.debug:
+    msg: "VM {{ proxmox_registry_vm_name }} is now running and ready for SSH."
+
+- name: Add VM to Ansible Inventory
+  ansible.builtin.add_host:
+    name: "proxmox_registry"
+    ansible_host: "{{ proxmox_registry_vm_ip }}"
+    ansible_user: "ansible"
+    ansible_ssh_private_key_file: "~/.ssh/id_rsa"

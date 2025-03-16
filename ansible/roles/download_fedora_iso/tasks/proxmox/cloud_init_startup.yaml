@@ -1,0 +1,28 @@
+- name: Ensure Cloud-Init Snippets Directory Exists
+  ansible.builtin.file:
+    path: "/var/lib/vz/snippets"
+    state: directory
+    mode: "0755"
+  delegate_to: proxmox-node
+
+- name: Create Cloud-Init Configuration to Install Guest Agent
+  ansible.builtin.copy:
+    dest: "/var/lib/vz/snippets/cloud-init-guest-agent.cfg"
+    content: |
+      #cloud-config
+      hostname: {{ proxmox_registry_vm_name }}
+      manage_etc_hosts: true
+      users:
+        - name: ansible
+          sudo: ['ALL=(ALL) NOPASSWD:ALL']
+          shell: /bin/bash
+          ssh_authorized_keys:
+            - {{ lookup('file', '~/.ssh/id_rsa.pub') }}
+      package_update: true
+      package_upgrade: true
+      packages:
+        - qemu-guest-agent
+      runcmd:
+        - [ systemctl, enable, --now, qemu-guest-agent ]
+    mode: "0644"
+  delegate_to: proxmox-node

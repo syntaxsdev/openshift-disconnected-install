@@ -1,0 +1,14 @@
+- name: Full OCP Disconnected Install Playbook
+  gather_facts: false
+  hosts: localhost
+
+  tasks:
+    - name: Hypervisor setup
+      ansible.builtin.include_role:
+        name: hypervisor_setup
+
+    - name: Download Fedora Server ISO
+      ansible.builtin.include_role:
+        name: download_fedora_iso
+      vars: 
+        download_fedora_iso_deploy_on: "{{ deploy_on }}"

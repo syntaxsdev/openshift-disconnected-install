@@ -1,9 +1,11 @@
 - name: Download the Qcow2 Image
   ansible.builtin.get_url:
     url: "{{ download_fedora_iso_link }}"
-    dest: "{{ local_iso_dir }}/{{ download_fedora_iso_name }}"
+    dest: "{{ download_fedora_iso_image_path }}"
     mode: "0644"
+  delegate_to: proxmox-node
 
-- name: Import QCOW2 Disk to Proxmox `local` Storage
+- name: Convert QCOW2 to RAW for LVM Storage
   ansible.builtin.command:
-    cmd: "qm importdisk {{ vm_id }} {{ qcow2_file }} {{ storage }} --format qcow2"
+    cmd: "qemu-img convert -O raw {{ download_fedora_iso_image_path }} /var/lib/vz/images/{{ download_fedora_raw_name }}"
+  delegate_to: proxmox-node

@@ -1,0 +1,24 @@
+- name: Run qm list
+  ansible.builtin.command: "qm list"
+  register: qm_list
+  changed_when: false
+  delegate_to: proxmox-node
+
+- name: Extract VM IDs
+  ansible.builtin.set_fact:
+    existing_vms: >-
+      {{ qm_list.stdout_lines[1:]
+        | map('split',)
+        | map('first')
+        | list
+      }}
+  delegate_to: proxmox-node
+
+- name: Determine next available VM ID
+  ansible.builtin.set_fact:
+    proxmox_vm_id: "{{ (range(5000, 5999) | difference(existing_vms | map('int') | list) | list | first) }}"
+  delegate_to: proxmox-node
+
+- name: Print VM ID that will be used
+  ansible.builtin.debug:
+    var: proxmox_vm_id

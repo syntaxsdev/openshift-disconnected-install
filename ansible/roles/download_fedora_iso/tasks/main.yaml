@@ -1,0 +1,11 @@
+- name: Set default values
+  ansible.builtin.set_fact:
+    local_iso_temp_dir: "{{ download_fedora_iso_temp_dir }}"
+  when: local_iso_temp_dir is not defined
+
+- name: Set Fedora OS Download Facts
+  ansible.builtin.set_fact:
+    local_iso_dir: "{{ local_iso_temp_dir | default(lookup('ansible.builtin.env', 'LOCAL_ISO_TEMP_DIR')) }}"
+
+- name: Include respective task
+  ansible.builtin.include_tasks: "{{ download_fedora_iso_deploy_on }}/main.yaml"

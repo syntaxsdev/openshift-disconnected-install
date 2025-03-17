@@ -30,3 +30,4 @@ mirror_registry:
   password: "6rD3m9V7ZcAl"
   # extra_args: "--targetUsername {{ mirror_registry.username }}"
   quay_root_folder: ~/quay
+  install_dir: "/usr/local/bin"

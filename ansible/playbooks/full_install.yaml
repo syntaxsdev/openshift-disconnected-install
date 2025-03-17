@@ -12,3 +12,7 @@
         name: download_fedora_iso
       vars: 
         download_fedora_iso_deploy_on: "{{ deploy_on }}"
+
+    - name: Install the Mirror Registry on the Server
+      ansible.builtin.include_role:
+        name: setup_mirror_registry

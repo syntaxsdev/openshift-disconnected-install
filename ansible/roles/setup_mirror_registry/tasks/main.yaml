@@ -1,44 +1,49 @@
 - name: Determine action
   ansible.builtin.set_fact:
     action: "{{ action | default('install') }}"
+  delegate_to: registry-server
 
 - name: Download and install OpenShift mirror binaries
   become: true
+  become_method: sudo
+  delegate_to: registry-server
   block:
     - name: Delete OpenShift mirror and mirror-registry CLI (ensure latest)
       ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
-        - "mirror-registry"
-        - "oc-mirror"
+        - "{{ mirror_registry.install_dir }}/mirror-registry"
+        - "{{ mirror_registry.install_dir }}/oc-mirror"
 
     - name: Install OpenShift mirror and mirror-registry CLI
       ansible.builtin.unarchive:
         src: "{{ item }}"
         remote_src: yes
-        dest: "/usr/local/bin"
+        dest: "{{ mirror_registry.install_dir }}"
         mode: '755'
         exclude:
           - README.md
-      when: action == "install"
       loop:
         - "{{ openshift_mirror_cli_url }}"
         - "{{ openshift_mirror_registry_url }}"
 
+- name: Set mirror registry cli
+  ansible.builtin.set_fact:
+    mr_cli: "{{ mirror_registry.install_dir }}/mirror-registry"
+
 - name: Install Quay Registry using mirror-registry CLI
   ansible.builtin.command:
-    command: "{{ mirror_registry_cli }} install -v \
+    command: "{{ mr_cli }} install -v \
           {{ mirror_registry.extra_args }} \
           --quayHostname {{ mirror_registry.hostname }} \
           --quayRoot {{ mirror_registry.quay_root }} \
           --initUser {{ mirror_registry.username }} \
           --initPassword {{ mirror_registry.password }}"
-  delegate_to: registry-server
   when: action == "install"
 
 - name: Uninstall Quay Registry using mirror-registry CLI
   ansible.builtin.command:
-    command: "{{ mirror_registry_cli }} uninstall -v"
+    command: "{{ mr_cli }} uninstall -v"
   delegate_to: registry-server
   when: action == "uninstall"

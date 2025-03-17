@@ -1,0 +1,9 @@
+- name: Download and Install Fedora Server for Quay Registry
+  gather_facts: false
+  connection: local
+  hosts: localhost
+
+  tasks:
+    - name: Download Fedora Server ISO
+      ansible.builtin.import_role:
+        name: download_fedora_iso

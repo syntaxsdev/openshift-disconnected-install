@@ -1,3 +1,12 @@
+###################################################################
+############ PLEASE VERIFY YOU READ INSTRUCTIONS BELOW ############
+###################################################################
+
+# 1. Please make sure you set a DNS record for hostname
+#    You can setup a post provision python or sh script to do that under
+#    mirror_registry.POST_SETUP_IP_HOOK 
+
+
 ocp_channel: stable
 openshift_version: 4.17
 openshift_channel: "{{ ocp_channel }}-{{ openshift_version }}"
@@ -10,6 +19,7 @@ hypervisor:
     node: pve # the name of the node to install on
 
 mirror_registry:
+  POST_SETUP_IP_HOOK: ../../../extras/post_registry_provision.py
   vm_size_gb: 250
   vm_cores: 2
   vm_ram: 8192

@@ -1,0 +1,10 @@
+- name: Download and Install Fedora Server for Quay Registry
+  gather_facts: false
+  hosts: registry-server
+
+  tasks:
+    - name: Download and Install Mirror Registry on Registry Server
+      ansible.builtin.import_role:
+        name: setup_mirror_registry
+      vars:
+        action: install

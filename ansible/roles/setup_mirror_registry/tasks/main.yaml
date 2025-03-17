@@ -25,3 +25,20 @@
       loop:
         - "{{ openshift_mirror_cli_url }}"
         - "{{ openshift_mirror_registry_url }}"
+
+- name: Install Quay Registry using mirror-registry CLI
+  ansible.builtin.command:
+    command: "{{ mirror_registry_cli }} install -v \
+          {{ mirror_registry.extra_args }} \
+          --quayHostname {{ mirror_registry.hostname }} \
+          --quayRoot {{ mirror_registry.quay_root }} \
+          --initUser {{ mirror_registry.username }} \
+          --initPassword {{ mirror_registry.password }}"
+  delegate_to: registry-server
+  when: action == "install"
+
+- name: Uninstall Quay Registry using mirror-registry CLI
+  ansible.builtin.command:
+    command: "{{ mirror_registry_cli }} uninstall -v"
+  delegate_to: registry-server
+  when: action == "uninstall"

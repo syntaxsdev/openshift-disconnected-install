@@ -39,7 +39,7 @@
 
 - name: Add VM to Ansible Inventory
   ansible.builtin.add_host:
-    name: "proxmox_registry"
+    name: "registry-server"
     ansible_host: "{{ proxmox_registry_vm_ip }}"
-    ansible_user: "ansible"
+    ansible_user: "{{ mirror_registry.vm_user }}"
     ansible_ssh_private_key_file: "~/.ssh/id_rsa"

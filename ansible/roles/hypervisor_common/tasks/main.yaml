@@ -3,11 +3,11 @@
   ansible.builtin.set_fact:
     supported_hypervisors:
       - proxmox
-      - baremetal
+      - baremetal # not actually implemented
 
 - name: Determine Hypervisor environment
   ansible.builtin.set_fact:
-    deploy_on: "{{ hypervisor | default(lookup('ansible.builtin.env', 'OCP_DEPLOY_ON')) }}"
+    deploy_on: "{{ hypervisor.type | default(lookup('ansible.builtin.env', 'OCP_DEPLOY_ON')) }}"
 
 - name: Determine if valid hypervisor chosen
   ansible.builtin.assert:

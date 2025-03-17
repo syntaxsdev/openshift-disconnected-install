@@ -3,6 +3,6 @@ download_fedora_iso_temp_dir: /var/lib/vz/images
 download_fedora_iso_link: https://download.fedoraproject.org/pub/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2
 download_fedora_iso_name: fedora_server_41.qcow2
 download_fedora_raw_name: fedora_server_41.raw
-download_fedora_iso_proxmox_registry_vm_id: 6551
 download_fedora_iso_proxmox_registry_vm_name: ocp-quay-registry
-download_fedora_iso_proxmox_cipassword: 6rD3m9V7ZcAl
+download_fedora_iso_registry_ciuser: "{{ mirror_registry.vm_user | default('quayadmin') }}"
+download_fedora_iso_registry_cipassword: "{{ mirror_registry.vm_password | default(omit) }}"

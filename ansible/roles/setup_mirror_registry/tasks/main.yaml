@@ -1,0 +1,27 @@
+- name: Determine action
+  ansible.builtin.set_fact:
+    action: "{{ action | default('install') }}"
+
+- name: Download and install OpenShift mirror binaries
+  become: true
+  block:
+    - name: Delete OpenShift mirror and mirror-registry CLI (ensure latest)
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "mirror-registry"
+        - "oc-mirror"
+
+    - name: Install OpenShift mirror and mirror-registry CLI
+      ansible.builtin.unarchive:
+        src: "{{ item }}"
+        remote_src: yes
+        dest: "/usr/local/bin"
+        mode: '755'
+        exclude:
+          - README.md
+      when: action == "install"
+      loop:
+        - "{{ openshift_mirror_cli_url }}"
+        - "{{ openshift_mirror_registry_url }}"

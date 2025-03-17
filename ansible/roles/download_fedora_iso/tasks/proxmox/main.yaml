@@ -1,7 +1,10 @@
 - name: Ensure required Variables
   ansible.builtin.assert:
     that:
-      - proxmox_storage != ''
+      - hypervisor.storage != ''
+    msg: >-
+      Please set the `hypervisor.storage` variable in `group_vars/all.yaml` or pass as env var. 
+      For ex: local, local-lvm, etc."
 
 - name: Ensure qemu-img is available
   ansible.builtin.command: "qemu-img --version"

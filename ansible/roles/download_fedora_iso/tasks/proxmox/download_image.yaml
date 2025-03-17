@@ -12,5 +12,5 @@
 
 - name: Resize Raw Disk
   ansible.builtin.command:
-    cmd: "qemu-img resize /var/lib/vz/images/{{ download_fedora_raw_name }} 250G"
+    cmd: "qemu-img resize /var/lib/vz/images/{{ download_fedora_raw_name }} {{ mirror_registry.vm_size_gb }}G"
   delegate_to: proxmox-node

@@ -5,10 +5,11 @@
 - name: Set VM Information
   ansible.builtin.set_fact:
     proxmox_registry_vm_id: "{{ proxmox_registry_vm_id | default(proxmox_vm_id) }}"
-    vlan_tag: "{{ vlan_tag | default(lookup('ansible.builtin.env', 'VM_VLAN_TAG', default='0')) }}"
+    vlan_tag: "{{ mirror_registry.vlan_tag | default(lookup('ansible.builtin.env', 'VM_VLAN_TAG', default='0')) }}"
+    proxmox_node: "{{ hypervisor.proxmox.node }}"
   delegate_to: proxmox-node
 
-- name: Debug
+- name: Print VLAN tag
   debug:
     var: vlan_tag
 
@@ -20,73 +21,14 @@
     api_token_secret: "{{ proxmox_api_token_secret }}"
     vmid: "{{ proxmox_registry_vm_id }}"
     name: "{{ proxmox_registry_vm_name }}"
-    memory: 6192
-    cores: 2
+    memory: "{{ mirror_registry.vm_ram }}"
+    cores: "{{ mirror_registry.vm_cores }}"
     net:
       net0: "virtio,bridge=vmbr0,tag={{ vlan_tag }}"
     ostype: "l26"
     agent: 1
-    ciuser: ansible
-    cipassword: "{{ download_fedora_iso_proxmox_cipassword }}"
-    sshkeys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-    boot: "order=scsi0"
-    state: present
-    node: "{{ proxmox_node }}"
-  when: vlan_tag | int > 1
-
-
-- name: Create Registry VM in Proxmox without VLAN
-  community.general.proxmox_kvm:
-    api_host: "{{ proxmox_api_host }}"
-    api_user: "{{ proxmox_api_user }}"
-    api_token_id: "{{ proxmox_api_token_id }}"
-    api_token_secret: "{{ proxmox_api_token_secret }}"
-    vmid: "{{ proxmox_registry_vm_id }}"
-    name: "{{ proxmox_registry_vm_name }}"
-    memory: 6192
-    cores: 2
-    net:
-      net0: "virtio,bridge=vmbr0"
-    ostype: "l26"
-    agent: 1
-    ciuser: ansible
-    cipassword: "{{ download_fedora_iso_proxmox_cipassword }}"
-    sshkeys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-    boot: "order=scsi0"
-    state: present
-    node: "{{ proxmox_node }}"
-  when: vlan_tag | int == 0
-
-- name: Attach Cloud-Init Drive (RAW Format)
-  ansible.builtin.command:
-    cmd: "qm set {{ proxmox_registry_vm_id }} --ide2 {{ proxmox_storage }}:cloudinit,format=raw"
-  delegate_to: proxmox-node
-
-- name: Import QCOW2 Disk to Proxmox Storage
-  ansible.builtin.command:
-    cmd: "qm importdisk {{ proxmox_registry_vm_id }} {{ download_fedora_raw_image_path }} {{ proxmox_storage }}"
-  delegate_to: proxmox-node
-
-- name: Configure Cloud-Init Networking to Use DHCP
-  ansible.builtin.command:
-    cmd: "qm set {{ proxmox_registry_vm_id }} --ipconfig0 ip=dhcp"
-  delegate_to: proxmox-node
-
-
-- name: Create Registry VM in Proxmox with VLAN
-  community.general.proxmox_kvm:
-    api_host: "{{ proxmox_api_host }}"
-    api_user: "{{ proxmox_api_user }}"
-    api_token_id: "{{ proxmox_api_token_id }}"
-    api_token_secret: "{{ proxmox_api_token_secret }}"
-    vmid: "{{ proxmox_registry_vm_id }}"
-    name: "{{ proxmox_registry_vm_name }}"
-    memory: 6192
-    cores: 2
-    net:
-      net0: "virtio,bridge=vmbr0,tag={{ vlan_tag }}"
-    ostype: "l26"
-    ciuser: ansible
+    ciuser: "{{ download_fedora_iso_registry_ciuser }}"
+    cipassword: "{{ download_fedora_iso_registry_cipassword }}"
     sshkeys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
     boot: "order=scsi0"
     state: present
@@ -101,12 +43,14 @@
     api_token_secret: "{{ proxmox_api_token_secret }}"
     vmid: "{{ proxmox_registry_vm_id }}"
     name: "{{ proxmox_registry_vm_name }}"
-    memory: 6192
-    cores: 2
+    memory: "{{ mirror_registry.vm_ram }}"
+    cores: "{{ mirror_registry.vm_cores }}"
     net:
       net0: "virtio,bridge=vmbr0"
     ostype: "l26"
-    ciuser: ansible
+    agent: 1
+    ciuser: "{{ download_fedora_iso_registry_ciuser }}"
+    cipassword: "{{ download_fedora_iso_registry_cipassword }}"
     sshkeys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
     boot: "order=scsi0"
     state: present
@@ -121,7 +65,12 @@
 
 - name: Attach Cloud-Init Drive (RAW Format)
   ansible.builtin.command:
-    cmd: "qm set {{ proxmox_registry_vm_id }} --ide2 {{ proxmox_storage }}:cloudinit,format=raw"
+    cmd: "qm set {{ proxmox_registry_vm_id }} --ide2 {{ hypervisor.storage }}:cloudinit,format=raw"
+  delegate_to: proxmox-node
+
+- name: Configure Cloud-Init Networking to Use DHCP
+  ansible.builtin.command:
+    cmd: "qm set {{ proxmox_registry_vm_id }} --ipconfig0 ip=dhcp"
   delegate_to: proxmox-node
 
 - name: Attach Cloud-Init Custom Script to VM
@@ -129,9 +78,14 @@
     cmd: "qm set {{ proxmox_registry_vm_id }} --cicustom user=local:snippets/cloud-init-guest-agent.cfg"
   delegate_to: proxmox-node
 
+- name: Import QCOW2 Disk to Proxmox Storage
+  ansible.builtin.command:
+    cmd: "qm importdisk {{ proxmox_registry_vm_id }} {{ download_fedora_raw_image_path }} {{ hypervisor.storage }}"
+  delegate_to: proxmox-node
+
 - name: Attach Imported Disk to VM
   ansible.builtin.command:
-    cmd: "qm set {{ proxmox_registry_vm_id }} --scsihw virtio-scsi-pci --scsi0 {{ proxmox_storage }}:vm-{{ proxmox_registry_vm_id }}-disk-0"
+    cmd: "qm set {{ proxmox_registry_vm_id }} --scsihw virtio-scsi-pci --scsi0 {{ hypervisor.storage }}:vm-{{ proxmox_registry_vm_id }}-disk-0"
   delegate_to: proxmox-node
 
 - name: Set Boot Order

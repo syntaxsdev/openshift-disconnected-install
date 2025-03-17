@@ -1,0 +1,22 @@
+ocp_channel: stable
+openshift_version: 4.17
+openshift_channel: "{{ ocp_channel }}-{{ openshift_version }}"
+mirror_version: 1.3.9
+
+hypervisor:
+  type: proxmox
+  storage: nvme-1
+  proxmox:
+    node: pve # the name of the node to install on
+
+mirror_registry:
+  vm_size_gb: 250
+  vm_cores: 2
+  vm_ram: 8192
+  vm_user: quayadmin
+  vlan_tag: 0 # keep at 0 if you want default network tagging
+  hostname: "quay.example.com"
+  username: quayadmin
+  password: "6rD3m9V7ZcAl"
+  # extra_args: "--targetUsername {{ mirror_registry.username }}"
+  quay_root_folder: ~/quay

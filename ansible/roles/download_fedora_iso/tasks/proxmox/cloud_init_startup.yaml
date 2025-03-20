@@ -18,10 +18,12 @@
           shell: /bin/bash
           ssh_authorized_keys:
             - {{ lookup('file', '~/.ssh/id_rsa.pub') }}
-      package_update: true
-      package_upgrade: true
+      package_update: false
+      package_upgrade: false
       packages:
         - qemu-guest-agent
+        - python3-libdnf5
+        - python3-pip
       runcmd:
         - [ systemctl, enable, --now, qemu-guest-agent ]
     mode: "0644"

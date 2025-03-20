@@ -37,6 +37,6 @@ mirror_registry:
   domain: "syntaxs.io"
   username: quayadmin
   password: "6rD3m9V7ZcAl"
-  # extra_args: "--targetUsername {{ mirror_registry.username }}"
+  extra_args: "--sslCheckSkip" #"--targetUsername {{ mirror_registry.username }}"
   quay_root_folder: ~/quay
   install_dir: "/usr/local/bin"

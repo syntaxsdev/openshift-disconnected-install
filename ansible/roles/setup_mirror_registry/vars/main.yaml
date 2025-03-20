@@ -2,5 +2,5 @@
 openshift_install_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_channel }}/openshift-install-linux.tar.gz
 openshift_cli_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_channel }}/openshift-client-linux.tar.gz
 openshift_mirror_cli_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_channel }}/oc-mirror.tar.gz
-openshift_mirror_registry_url: https://mirror.openshift.com/pub/openshift-v4/clients/mirror-registry/{{ mirror_version }}/mirror-registry.tar.gz
+openshift_mirror_registry_url: https://github.com/syntaxsdev/mirror-registry/releases/download/v1.0.0/mirror-registry-full.tar.gz # https://mirror.openshift.com/pub/openshift-v4/clients/mirror-registry/{{ mirror_version }}/mirror-registry.tar.gz
 ...

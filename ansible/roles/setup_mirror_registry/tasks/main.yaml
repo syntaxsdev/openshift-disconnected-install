@@ -1,7 +1,15 @@
 - ansible.builtin.set_fact:
     action: "{{ action | default('install') }}"
-    hostname: "{{ mirror_registry.hostname }}/{{ mirror_registry.domain }}"
+    hostname: "{{ mirror_registry.hostname }}.{{ mirror_registry.domain }}"
     extra_args: "{{ mirror_registry.extra_args | default('') }}"
+  delegate_to: registry-server
+
+- name: Ensure latest http modules
+  ansible.builtin.pip:
+    name:
+      - requests
+      - urllib3
+    state: latest
   delegate_to: registry-server
 
 - name: Download and install OpenShift mirror binaries
@@ -20,7 +28,7 @@
     - name: Install OpenShift mirror and mirror-registry CLI
       ansible.builtin.unarchive:
         src: "{{ item }}"
-        remote_src: yes
+        remote_src: true
         dest: "{{ mirror_registry.install_dir }}"
         mode: '755'
         exclude:
@@ -28,6 +36,14 @@
       loop:
         - "{{ openshift_mirror_cli_url }}"
         - "{{ openshift_mirror_registry_url }}"
+
+- name: Restart systemd-resolved service
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+    enabled: true
+  delegate_to: registry-server
+  become: true
 
 - name: Set mirror registry cli
   ansible.builtin.set_fact:
@@ -41,6 +57,7 @@
           --quayRoot {{ mirror_registry.quay_root_folder }} \
           --initUser {{ mirror_registry.username }} \
           --initPassword {{ mirror_registry.password }}"
+  delegate_to: registry-server
   when: action == "install"
 
 - name: Uninstall Quay Registry using mirror-registry CLI

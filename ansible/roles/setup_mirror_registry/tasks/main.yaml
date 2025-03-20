@@ -35,16 +35,16 @@
 
 - name: Install Quay Registry using mirror-registry CLI
   ansible.builtin.command:
-    command: "{{ mr_cli }} install -v \
+    cmd: "{{ mr_cli }} install -v \
           {{ extra_args }} \
           --quayHostname {{ hostname }} \
-          --quayRoot {{ mirror_registry.quay_root }} \
+          --quayRoot {{ mirror_registry.quay_root_folder }} \
           --initUser {{ mirror_registry.username }} \
           --initPassword {{ mirror_registry.password }}"
   when: action == "install"
 
 - name: Uninstall Quay Registry using mirror-registry CLI
   ansible.builtin.command:
-    command: "{{ mr_cli }} uninstall -v"
+    cmd: "{{ mr_cli }} uninstall -v"
   delegate_to: registry-server
   when: action == "uninstall"

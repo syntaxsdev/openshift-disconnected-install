@@ -1,0 +1,8 @@
+- name: Add DNS for Mirror Registry
+  gather_facts: false
+  hosts: localhost
+
+  tasks:
+    - name: Add DNS for the Mirror Registry Server
+      ansible.builtin.import_role:
+        name: add_dns

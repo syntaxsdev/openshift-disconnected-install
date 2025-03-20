@@ -2,9 +2,9 @@
 ############ PLEASE VERIFY YOU READ INSTRUCTIONS BELOW ############
 ###################################################################
 
-# 1. Please make sure you set a DNS record for hostname
-#    You can setup a post provision python or sh script to do that under
-#    mirror_registry.POST_SETUP_IP_HOOK 
+# 1. Please make sure you set a way to add the DNS record for Mirror Registry
+# You can use OpnSense unbound (built in) by setting the
+# dns.method: opnsense_unbound
 
 
 ocp_channel: stable
@@ -18,6 +18,14 @@ hypervisor:
   proxmox:
     node: pve # the name of the node to install on
 
+dns:
+  method: opnsense_unbound
+  api_key_file: ~/opnsense_api.conf
+  opnsense:
+    ip: 192.168.1.1
+    port: 445
+    ssl_verify: false
+
 mirror_registry:
   POST_SETUP_IP_HOOK: ../../../extras/post_registry_provision.py
   vm_size_gb: 250
@@ -25,7 +33,8 @@ mirror_registry:
   vm_ram: 8192
   vm_user: quayadmin
   vlan_tag: 0 # keep at 0 if you want default network tagging
-  hostname: "quay.example.com"
+  hostname: "quay"
+  domain: "syntaxs.io"
   username: quayadmin
   password: "6rD3m9V7ZcAl"
   # extra_args: "--targetUsername {{ mirror_registry.username }}"

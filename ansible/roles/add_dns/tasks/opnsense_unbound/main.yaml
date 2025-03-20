@@ -1,0 +1,25 @@
+- name: Ensure OpnSense variables
+  ansible.builtin.set_fact:
+    firewall_ip: "{{ dns.opnsense.ip }}"
+    firewall_port: "{{ dns.opnsense.port | default('443') }}"
+    ssl: "{{ dns.opnsense.ssl_verify | default(false) }}"
+
+- name: Assert OpnSense variables
+  ansible.builtin.assert:
+    that:
+      - firewall_ip is defined
+      - firewall_ip != ''
+    msg: "Please ensure you set the firewall host and port (if applicable) in `dns:` in the group_vars/all.yaml"
+
+- name: Adding DNS host for Mirror Registry
+  ansibleguy.opnsense.unbound_host:
+    firewall: "{{ firewall_ip }}"
+    api_port: "{{ firewall_port }}"
+    api_credential_file: "{{ dns.api_key_file }}"
+    hostname: "{{ mirror_registry.hostname }}"
+    domain: "{{ mirror_registry.domain }}"
+    value: "{{ proxmox_registry_vm_ip }}"
+    description: "Mirror Registry DNS for {{ mirror_registry.hostname }}.{{ mirror_registry.domain }}"
+    state: "present"
+    reload: true
+    ssl_verify: "{{ ssl }}"

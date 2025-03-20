@@ -1,6 +1,7 @@
-- name: Determine action
-  ansible.builtin.set_fact:
+- ansible.builtin.set_fact:
     action: "{{ action | default('install') }}"
+    hostname: "{{ mirror_registry.hostname }}/{{ mirror_registry.domain }}"
+    extra_args: "{{ mirror_registry.extra_args | default('') }}"
   delegate_to: registry-server
 
 - name: Download and install OpenShift mirror binaries
@@ -35,8 +36,8 @@
 - name: Install Quay Registry using mirror-registry CLI
   ansible.builtin.command:
     command: "{{ mr_cli }} install -v \
-          {{ mirror_registry.extra_args }} \
-          --quayHostname {{ mirror_registry.hostname }} \
+          {{ extra_args }} \
+          --quayHostname {{ hostname }} \
           --quayRoot {{ mirror_registry.quay_root }} \
           --initUser {{ mirror_registry.username }} \
           --initPassword {{ mirror_registry.password }}"

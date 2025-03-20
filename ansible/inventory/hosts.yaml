@@ -1,0 +1,16 @@
+---
+proxmox:
+    hosts:
+        proxmox-node:
+            ansible_host: 192.168.2.100
+            ansible_user: root
+            ansible_ssh_private_key_file: ~/.ssh/id_rsa
+
+# Add the mirror-registry manually for individual playbook runs
+
+# mirror-registry:
+#     hosts:
+#         registry-server:
+#             ansible_host: 192.168.1.145
+#             ansible_user: quayadmin
+#             ansible_ssh_private_key_file: ~/.ssh/id_rsa

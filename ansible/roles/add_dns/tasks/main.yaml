@@ -1,0 +1,7 @@
+- name: Determine DNS action
+  ansible.builtin.set_fact:
+    dns_type: "{{ dns.method | default(omit) }}"
+
+- name: Include DNS method
+  ansible.builtin.include_tasks: "{{ dns_type }}/main.yaml"
+  when: dns_type is not undefined and dns_type != ''

@@ -13,6 +13,11 @@
       vars: 
         download_fedora_iso_deploy_on: "{{ deploy_on }}"
 
+    - name: Set the DNS host for the Mirror Registry
+      ansible.builtin.include_role:
+        name: add_dns
+      when: "{{ dns.method is defined }}"
+
     - name: Install the Mirror Registry on the Server
       ansible.builtin.include_role:
         name: setup_mirror_registry

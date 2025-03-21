@@ -21,3 +21,7 @@
     - name: Install the Mirror Registry on the Server
       ansible.builtin.include_role:
         name: setup_mirror_registry
+
+    - name: Setup Pull Secret and Local Registry
+      ansible.builtin.import_role:
+        name: setup_pull_secret

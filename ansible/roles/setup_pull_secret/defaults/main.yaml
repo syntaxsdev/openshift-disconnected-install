@@ -1,0 +1,3 @@
+# setup_pull_secret/defaults/main.yaml
+setup_auth_pull_secret_auth_dir: $HOME/.docker
+setup_auth_pull_secret_file: "{{ setup_auth_pull_secret_auth_dir }}/config.json"

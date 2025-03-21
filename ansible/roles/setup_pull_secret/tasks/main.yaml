@@ -1,0 +1,40 @@
+- name: Store Pull Secret to variable
+  ansible.builtin.slurp:
+    src: "{{ mirror_registry.pull_secret_file }}"
+  register: file_content
+  no_log: true
+
+- ansible.builtin.set_fact:
+    pull_secret_json: "{{ file_content.content | b64decode }}"
+    pull_secret_dir: "{{ setup_auth_pull_secret_auth_dir }}"
+    pull_secret_file: "{{ setup_auth_pull_secret_file }}"
+  no_log: true
+
+- name: Ensure local home container folder exists
+  ansible.builtin.file:
+    path: "{{ pull_secret_dir }}"
+    state: directory
+    mode: "0700"
+  delegate_to: registry-server
+
+- name: Store Pull Secret on Mirror Registry Server
+  ansible.builtin.copy:
+    content: "{{ pull_secret_json }}"
+    dest: "{{ pull_secret_dir }}/auth.json"
+    mode: "0600"
+  delegate_to: registry-server
+
+- name: Log into local Quay Registry using Podman
+  containers.podman.podman_login:
+    username: "{{ mirror_registry.username }}"
+    password: "{{ mirror_registry.password }}"
+    registry: "{{ mirror_registry.hostname }}.{{ mirror_registry.domain }}:8443"
+    authfile: "{{ pull_secret_dir }}/auth.json"
+  delegate_to: registry-server
+
+- name: Start Mirror Command (this may take some time)
+  ansible.builtin.command:
+    cmd: "{{ mirror_registry.install_dir }}/oc-mirror \
+      --config=imageset-config2.yaml \
+      docker://quay.syntaxs.io:8443"
+    delegate_to: registry-server

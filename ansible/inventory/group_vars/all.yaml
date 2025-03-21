@@ -7,10 +7,14 @@
 # dns.method: opnsense_unbound
 
 
+# 2. Download your pull secret
+# https://console.redhat.com/openshift/install/pull-secret
+# And enter it under mirror_registry.
 ocp_channel: stable
-openshift_version: 4.17
+openshift_version: 4.18
 openshift_channel: "{{ ocp_channel }}-{{ openshift_version }}"
 mirror_version: 1.3.9
+baremetal_arch: amd64
 
 hypervisor:
   type: proxmox
@@ -28,9 +32,10 @@ dns:
 
 mirror_registry:
   POST_SETUP_IP_HOOK: ../../../extras/post_registry_provision.py
+  pull_secret_file: ~/pull-secret.txt
   vm_size_gb: 250
   vm_cores: 2
-  vm_ram: 8192
+  vm_ram: 12288 # suggest at least 12GB
   vm_user: quayadmin
   vlan_tag: 0 # keep at 0 if you want default network tagging
   hostname: "quay"

@@ -42,8 +42,8 @@
     name: systemd-resolved
     state: restarted
     enabled: true
-  delegate_to: registry-server
   become: true
+  delegate_to: registry-server
 
 - name: Set mirror registry cli
   ansible.builtin.set_fact:
@@ -57,11 +57,34 @@
           --quayRoot {{ mirror_registry.quay_root_folder }} \
           --initUser {{ mirror_registry.username }} \
           --initPassword {{ mirror_registry.password }}"
-  delegate_to: registry-server
   when: action == "install"
+  delegate_to: registry-server
+
+- name: Copy Quay Certs
+  ansible.builtin.copy:
+    remote_src: false
+    src: "{{ lookup('env', 'HOME') }}/quay/quay-rootCA/rootCA.pem"
+    dest: "/etc/pki/ca-trust/source/anchors/quay-syntaxs.crt"
+  become: true
+  when: action == "install"
+  delegate_to: registry-server
+
+- name: Trust Quay Certs
+  ansible.builtin.command:
+    cmd: update-ca-trust extract
+  become: true
+  when: action == "install"
+  delegate_to: registry-server
 
 - name: Uninstall Quay Registry using mirror-registry CLI
   ansible.builtin.command:
     cmd: "{{ mr_cli }} uninstall -v"
-  delegate_to: registry-server
   when: action == "uninstall"
+  delegate_to: registry-server
+
+- name: Remove Quay Cert
+  ansible.builtin.file:
+    path: "/etc/pki/ca-trust/source/anchors/quay-syntaxs.crt"
+    state: absent
+  when: action == "uninstall"
+  delegate_to: registry-server

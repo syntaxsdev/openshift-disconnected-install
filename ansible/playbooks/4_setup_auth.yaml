@@ -1,0 +1,8 @@
+- name: Setup Pull Secret and Local Registry Login
+  gather_facts: false
+  hosts: localhost
+
+  tasks:
+    - name: Setup Pull Secret and Local Registry
+      ansible.builtin.import_role:
+        name: setup_pull_secret

@@ -23,6 +23,7 @@
     name: "{{ proxmox_registry_vm_name }}"
     memory: "{{ mirror_registry.vm_ram }}"
     cores: "{{ mirror_registry.vm_cores }}"
+    cpu: "host"
     net:
       net0: "virtio,bridge=vmbr0,tag={{ vlan_tag }}"
     ostype: "l26"
@@ -45,6 +46,7 @@
     name: "{{ proxmox_registry_vm_name }}"
     memory: "{{ mirror_registry.vm_ram }}"
     cores: "{{ mirror_registry.vm_cores }}"
+    cpu: "host"
     net:
       net0: "virtio,bridge=vmbr0"
     ostype: "l26"

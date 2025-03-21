@@ -1,0 +1,12 @@
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+storageConfig:
+  local:
+    path: ~/local-mirror
+mirror:
+  platform:
+    architectures:
+        - "{{ baremetal_arch }}"
+    channels:
+      - name: {{ openshift_channel }}
+        type: ocp

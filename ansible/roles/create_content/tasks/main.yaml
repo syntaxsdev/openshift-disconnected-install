@@ -1,1 +1,0 @@
-# oc mirror release --from=quay.io/openshift-release-dev/ocp-release:4.9.0-x86_64 --to=quay.syntaxs.io:8443/openshift/release --to-release-image=quay.syntaxs.io:8443/openshift/release:4.9.0-x86_64

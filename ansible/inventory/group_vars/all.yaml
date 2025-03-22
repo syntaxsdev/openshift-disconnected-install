@@ -10,11 +10,21 @@
 # 2. Download your pull secret
 # https://console.redhat.com/openshift/install/pull-secret
 # And enter it under mirror_registry.
+
+# 3. Chose your Mirror Mode:
+# Options: 
+# - reg2reg | r2r (semi-disconnected)
+
 ocp_channel: stable
 openshift_version: 4.18
 openshift_channel: "{{ ocp_channel }}-{{ openshift_version }}"
 mirror_version: 1.3.9
 baremetal_arch: amd64
+
+ocp:
+  mirror_mode: r2r
+  min_version: 4.18.4
+  max_version: 4.18.6
 
 hypervisor:
   type: proxmox

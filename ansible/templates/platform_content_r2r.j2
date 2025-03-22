@@ -1,0 +1,14 @@
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+storageConfig:
+  registry:
+    imageURL: {{ mirror_registry.hostname }}.{{ mirror_registry.domain }}:8443/ocp-mirror/metadata
+mirror:
+  platform:
+    architectures:
+      - "{{ baremetal_arch }}"
+    channels:
+      - name: {{ openshift_channel }}
+        type: ocp
+        minVersion: {{ ocp.min_version }}
+        maxVersion: {{ ocp.max_version }}

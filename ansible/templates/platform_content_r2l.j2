@@ -10,3 +10,5 @@ mirror:
     channels:
       - name: {{ openshift_channel }}
         type: ocp
+        minVersion: {{ ocp.min_version }}
+        maxVersion: {{ ocp.max_version }}

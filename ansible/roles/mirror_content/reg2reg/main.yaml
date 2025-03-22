@@ -1,0 +1,15 @@
+- ansible.builtin.set_fact:
+    reg2reg_file: "/home/{{ mirror_registry.vm_user }}/platform_content_r2r.yaml"
+
+- name: Create Platform imageset template
+  ansible.builtin.template:
+    src: "../../templates/platform_content_r2r.j2"
+    dest: "{{ reg2reg_file }}"
+  delegate_to: registry-server
+
+- name: Mirror - Registry to Registry (this may take some time)
+  ansible.builtin.command:
+    cmd: "{{ mirror_registry.install_dir }}/oc-mirror \
+      --config={{ reg2reg_file }} \
+      docker://{{ mirror_registry.hostname }}.{{ mirror_registry.domain }}:8443"
+  delegate_to: registry-server

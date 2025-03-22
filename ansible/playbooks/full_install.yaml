@@ -25,3 +25,7 @@
     - name: Setup Pull Secret and Local Registry
       ansible.builtin.import_role:
         name: setup_pull_secret
+
+    - name: Start the Mirror Content Process 
+      ansible.builtin.import_role:
+        name: mirror_content

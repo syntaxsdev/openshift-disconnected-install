@@ -20,7 +20,7 @@
 - name: Store Pull Secret on Mirror Registry Server
   ansible.builtin.copy:
     content: "{{ pull_secret_json }}"
-    dest: "{{ pull_secret_dir }}/auth.json"
+    dest: "{{ pull_secret_file }}"
     mode: "0600"
   delegate_to: registry-server
 
@@ -29,12 +29,5 @@
     username: "{{ mirror_registry.username }}"
     password: "{{ mirror_registry.password }}"
     registry: "{{ mirror_registry.hostname }}.{{ mirror_registry.domain }}:8443"
-    authfile: "{{ pull_secret_dir }}/auth.json"
+    authfile: "{{ pull_secret_file }}"
   delegate_to: registry-server
-
-- name: Start Mirror Command (this may take some time)
-  ansible.builtin.command:
-    cmd: "{{ mirror_registry.install_dir }}/oc-mirror \
-      --config=imageset-config2.yaml \
-      docker://quay.syntaxs.io:8443"
-    delegate_to: registry-server

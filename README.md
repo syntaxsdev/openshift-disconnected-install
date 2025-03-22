@@ -2,6 +2,8 @@
 # WORK IN PROGRESS!
 ### Ansible Disconnected OpenShift Installation
 
+Currently supports Semi-Disconnected (RH Registry to local Quay)
+
 This Ansible automation aims to completely streamline the process of installing OpenShift Disconnected on a hypervisor or baremetal setup.
 
 Right now, only Proxmox is supported.

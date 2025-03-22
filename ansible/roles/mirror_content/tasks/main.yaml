@@ -1,0 +1,7 @@
+- name: Set action to Registry to Registry
+  ansible.builtin.set_fact:
+    mirror_action: "reg2reg"
+  when: ocp.mirror_mode == 'r2r' or ocp.mirror_mode == 'reg2reg'
+
+- name: Include Mirror Content Action
+  ansible.builtin.include_tasks: "{{ mirror_action }}/main.yaml"

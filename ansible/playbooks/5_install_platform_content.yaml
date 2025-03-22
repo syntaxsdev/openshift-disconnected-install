@@ -1,0 +1,8 @@
+- name: Install Platform Content to Quay Registry
+  gather_facts: false
+  hosts: localhost
+
+  tasks:
+    - name: Install Platform Content from Mirror 
+      ansible.builtin.import_role:
+        name: mirror_content

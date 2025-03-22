@@ -62,8 +62,8 @@
 
 - name: Copy Quay Certs
   ansible.builtin.copy:
-    remote_src: false
-    src: "{{ lookup('env', 'HOME') }}/quay/quay-rootCA/rootCA.pem"
+    remote_src: true
+    src: "/home/{{ mirror_registry.vm_user }}/quay/quay-rootCA/rootCA.pem"
     dest: "/etc/pki/ca-trust/source/anchors/quay-syntaxs.crt"
   become: true
   when: action == "install"

@@ -1,0 +1,39 @@
+apiVersion: v1
+baseDomain: {{ dns.domain }}
+metadata:
+  name: {{ ocp.cluster_name }}
+platform:
+  none: {}
+compute:
+- name: worker
+  replicas: {{ ocp.worker_nodes }}
+controlPlane:
+  name: master
+  replicas: {{ ocp.worker_nodes }}
+pullSecret: '{{ pull_secret_json }}'
+sshKey: |
+  ssh-rsa AAAA...
+
+# For disconnected environments
+imageContentSources:
+- mirrors:
+  - quay.example.com/ocp4/openshift4
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - quay.example.com/ocp4/openshift4
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+
+additionalTrustBundle: |
+  -----BEGIN CERTIFICATE-----
+  <your-quay-ca>
+  -----END CERTIFICATE-----
+
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  networkType: OVNKubernetes
+  serviceNetwork:
+  - 172.30.0.0/16
+  machineNetwork:
+  - cidr: 192.168.1.0/24

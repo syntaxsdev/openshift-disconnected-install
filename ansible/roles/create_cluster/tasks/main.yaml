@@ -1,0 +1,56 @@
+---
+- name: Create install directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ create_cluster_install_dir }}"
+    mode: "0700"
+
+- name: Delete and Redownload OpenShift Installer CLI
+  block:
+    - name: Delete OpenShift CLI from {{ ocp.bin_dir }}
+      become: true
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ ocp.bin_dir }}/oc"
+        - "{{ ocp.bin_dir }}/openshift-install"
+      when: ocp.update_tools
+    # - name: Download OpenShift installer CLI
+    #   ansible.builtin.get_url:
+    #     url: "{{ item }}"
+    #     dest: "/tmp/openshift-install-linux.tar.gz"
+    #     mode: '755'
+    #   loop:
+    #     - "{{ create_cluster_openshift_install_url }}"
+    #     - "{{ create_cluster_openshift_cli_url }}"
+
+    - name: Install OpenShift installer CLI
+      become: true
+      ansible.builtin.unarchive:
+        remote_src: true
+        src: "{{ item }}"
+        dest: "{{ ocp.bin_dir }}"
+        mode: '755'
+        exclude:
+          - README.md
+      loop:
+        - "{{ create_cluster_openshift_install_url }}"
+        - "{{ create_cluster_openshift_cli_url }}"
+
+- name: Store Pull Secret to variable
+  ansible.builtin.slurp:
+    src: "{{ mirror_registry.pull_secret_file }}"
+  register: file_content
+  # no_log: true
+  delegate_to: registry-server
+
+- name: Set Pull Secret var
+  ansible.builtin.set_fact:
+    pull_secret_json: "{{ file_content.content | b64decode }}"
+  no_log: true
+
+- name: Debug
+  debug:
+    var: "{{ pull_secret_json }}"
+...

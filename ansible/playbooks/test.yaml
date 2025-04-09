@@ -1,0 +1,20 @@
+- name: Full OCP Disconnected Install Playbook
+  gather_facts: false
+  hosts: registry-server
+
+  tasks:
+    - name: Find the oc-mirror results folder
+      ansible.builtin.find:
+        paths: ./oc-mirror-workspace
+        patterns: 'results-*'
+        file_type: directory
+        use_regex: false
+      register: mirror_results
+
+    - name: Set latest results folder path (sorted by modification time)
+      ansible.builtin.set_fact:
+        latest_results_path: "{{ (mirror_results.files | sort(attribute='mtime', reverse=true))[0].path }}"
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: latest_results_path

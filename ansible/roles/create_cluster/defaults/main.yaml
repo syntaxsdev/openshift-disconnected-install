@@ -1,0 +1,2 @@
+# roles/create_cluster/defaults/main.yaml
+create_cluster_install_dir: "{{ ocp.install_dir | default('/var/tmp/ocp') }}"

@@ -14,7 +14,6 @@
 
 - name: Download and install OpenShift mirror binaries
   become: true
-  become_method: sudo
   delegate_to: registry-server
   block:
     - name: Delete OpenShift mirror and mirror-registry CLI (ensure latest)

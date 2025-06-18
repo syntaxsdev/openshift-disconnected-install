@@ -6,13 +6,12 @@
 # You can use OpnSense unbound (built in) by setting the
 # dns.method: opnsense_unbound
 
-
 # 2. Download your pull secret
 # https://console.redhat.com/openshift/install/pull-secret
 # And enter it under mirror_registry.
 
 # 3. Chose your Mirror Mode:
-# Options: 
+# Options:
 # - reg2reg | r2r (semi-disconnected)
 
 ocp_channel: stable
@@ -23,15 +22,18 @@ baremetal_arch: amd64
 
 ocp:
   update_tools: false
+  install_tools: false
   cluster_name: ocp
   install_dir: ~/ocp/
   bin_dir: /usr/local/bin
   mirror_mode: r2r
   min_version: 4.18.4
   max_version: 4.18.6
-  worker_nodes: 2
-  control_nodes: 1
-
+  worker_nodes: 1
+  control_nodes: 3
+  ssh_public_key_file: ~/.ssh/id_rsa.pub
+  rendezvous_ip: 192.168.5.100
+  machine_network_cidr: 192.168.0.0/20
 
 hypervisor:
   type: proxmox
@@ -51,6 +53,7 @@ dns:
 mirror_registry:
   POST_SETUP_IP_HOOK: ../../../extras/post_registry_provision.py
   pull_secret_file: ~/pull-secret.txt
+  quay_pull_secret_file: ~/quay-pull-secret.json
   vm_size_gb: 250
   vm_cores: 2
   vm_ram: 12288 # suggest at least 12GB
@@ -63,3 +66,27 @@ mirror_registry:
   extra_args: "--sslCheckSkip" #"--targetUsername {{ mirror_registry.username }}"
   quay_root_folder: ~/quay
   install_dir: "/usr/local/bin"
+  cert: |
+    -----BEGIN CERTIFICATE-----
+    MIID0zCCArugAwIBAgIUGWNJt7pOfxgoqWnjqRf1zaJwcigwDQYJKoZIhvcNAQEL
+    BQAwaTELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAlZBMREwDwYDVQQHDAhOZXcgWW9y
+    azENMAsGA1UECgwEUXVheTERMA8GA1UECwwIRGl2aXNpb24xGDAWBgNVBAMMD3F1
+    YXkuc3ludGF4cy5pbzAeFw0yNTA2MTcwNDMyNTJaFw0yODA0MDYwNDMyNTJaMGkx
+    CzAJBgNVBAYTAlVTMQswCQYDVQQIDAJWQTERMA8GA1UEBwwITmV3IFlvcmsxDTAL
+    BgNVBAoMBFF1YXkxETAPBgNVBAsMCERpdmlzaW9uMRgwFgYDVQQDDA9xdWF5LnN5
+    bnRheHMuaW8wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCy0J/apQXg
+    3KlufLyvdIrm3hKoEcGTzxvXhfxqbSsJF97MJxs42AiUlJ/P8kJGckiuj5vj87EN
+    5mt4I1PSaAVs/M5eJEP7v1qh7d95w5xgSMc+13+YXW5J9mCiI4LoHWMmWsIa3w7Y
+    viaisT9gniVZEULTvSxYJcnIGONYHE3Id6zKUv89lPjOxOCkJDrX5Khok/beS+Xd
+    OLFAcECbAP58DOf4OY17X1aULlKQ6BLeAJh8quV9Bs60SNlEfKWdEzrt8o44mStL
+    HnlfzBybl+4wlaZR2WxDgOsRLXa6KgOvmBDk0WwWfJf9LAUvqbLmeZQRnQKRVEyK
+    lBE1TWW08a5zAgMBAAGjczBxMAsGA1UdDwQEAwIC5DATBgNVHSUEDDAKBggrBgEF
+    BQcDATAaBgNVHREEEzARgg9xdWF5LnN5bnRheHMuaW8wEgYDVR0TAQH/BAgwBgEB
+    /wIBATAdBgNVHQ4EFgQU8mhR6UbO3ofy8S8WNBjopBFMjx8wDQYJKoZIhvcNAQEL
+    BQADggEBAAkIY8BrAmYYizNpf3mA7iROrYm6C1HqPkcclCcPKxEZ7Ul+2n7jF/Xk
+    wQ068HKAWxmmBrCypqZNZFl3bLqmZxh7kP0UR6qMtxGrheRVtFJW+U7sEAKi51Yq
+    G9iAW68FR8GxCG27ixNEWvps2kbUrWfUnUA+AFLMNObXF463fiB99su6KFyZn1N+
+    WmEc9v0q1cjm2PL1EUU+jauxycgPRKNQGvX6SkocmOcPZ3A3BvyyqAiODD2vE6ha
+    THNp7EQLMXcTkI6CYTsOCFzi7FU4Dkl5uIgpWdCdTtCk6L45RujsVWKdpL3jNbU7
+    R8AtDvO93iEHKg0fCt8LksNo/uty7iI=
+    -----END CERTIFICATE-----

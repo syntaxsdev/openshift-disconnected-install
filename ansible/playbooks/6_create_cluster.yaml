@@ -7,4 +7,3 @@
     - name: Import the Create Cluster Role
       ansible.builtin.import_role:
         name: create_cluster
-...

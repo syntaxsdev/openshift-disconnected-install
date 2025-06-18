@@ -1,0 +1,65 @@
+- name: Set SSH public key
+  ansible.builtin.set_fact:
+    ssh_public_key: "{{ lookup('file', ocp.ssh_public_key_file) }}"
+
+- name: Debug
+  debug:
+    var: ssh_public_key
+
+- name: Set ICSP file
+  ansible.builtin.set_fact:
+    iscp_file: "{{ ocp.install_dir }}/icsp.yaml"
+
+- name: Read Image Content Source Policy
+  ansible.builtin.set_fact:
+    image_policy: "{{ lookup('file', iscp_file) | from_yaml }}"
+
+- name: Set install-config style imageContentSources fact
+  ansible.builtin.set_fact:
+    image_content_sources: "{{ image_policy.spec.repositoryDigestMirrors | community.general.json_query('[*].{source: source, mirrors: mirrors}') }}"
+
+- name: Encode local registry credentials
+  ansible.builtin.shell: "echo -n '{{ mirror_registry.username }}:{{ mirror_registry.password }}' | base64"
+  register: local_registry_auth_b64
+  no_log: true
+
+- name: Create JSON object for local registry auth
+  ansible.builtin.set_fact:
+    local_registry_auth:
+      auths:
+        "{{ mirror_registry.hostname }}.{{ mirror_registry.domain }}:8443":
+          auth: "{{ local_registry_auth_b64.stdout }}"
+          email: ""
+
+- name: Read Red Hat pull secret
+  ansible.builtin.set_fact:
+    red_hat_pull_secret: "{{ lookup('file', mirror_registry.pull_secret_file) }}"
+
+- name: Merge Red Hat pull secret with local registry auth
+  ansible.builtin.set_fact:
+    combined_pull_secret: "{{ red_hat_pull_secret | combine(local_registry_auth, recursive=True) }}"
+
+- name: Set final pull secret fact for the template
+  ansible.builtin.set_fact:
+    pull_secret_json: "{{ combined_pull_secret | to_json }}"
+
+- name: Slurp Quay CA
+  ansible.builtin.slurp:
+    src: "{{ mirror_registry.quay_root_folder }}/quay-rootCA/rootCA.pem"
+  delegate_to: registry-server
+  register: quay_ca
+
+- name: Parse Quay Root CA to Trust Bundle
+  ansible.builtin.set_fact:
+    additional_trust_bundle: "{{ quay_ca.content | b64decode }}"
+
+# - name: Save to file on host
+#   ansible.builtin.copy:
+#     content: "{{ image_policy | to_nice_yaml }}"
+#     dest: "{{ ocp.install_dir }}/iscp.yaml"
+#     mode: "0755"
+
+- name: Populate install config
+  ansible.builtin.template:
+    src: "install_config.j2"
+    dest: "{{ ocp.install_dir }}/install-config.yaml"

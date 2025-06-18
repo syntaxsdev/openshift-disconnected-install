@@ -3,23 +3,24 @@ baseDomain: {{ dns.domain }}
 metadata:
   name: {{ ocp.cluster_name }}
 platform:
-  baremetal:
-    rendezvousIP: {{ ocp.rendezvous_ip }}
+  baremetal: {}
 compute:
 - name: worker
   replicas: {{ ocp.worker_nodes }}
 controlPlane:
   name: master
   replicas: {{ ocp.control_nodes }}
-pullSecret: '{{ pull_secret_json }}'
+pullSecret: |
+  {{ pull_secret_json }}
 sshKey: |
   {{ ssh_public_key }}
 
 # For disconnected environments
-{{ image_content_source_policy }}
+{{ {'imageDigestSources': image_content_sources} | to_nice_yaml(indent=2) }}
+
 
 additionalTrustBundle: |
-  {{ additional_trust_bundle }}
+  {{ additional_trust_bundle | indent(2) }}
 
 networking:
   clusterNetwork:
@@ -29,4 +30,4 @@ networking:
   serviceNetwork:
   - 172.30.0.0/16
   machineNetwork:
-  - cidr: 192.168.1.0/24
+  - cidr: {{ ocp.machine_network_cidr }}

@@ -31,16 +31,17 @@
         remote_src: true
         src: "{{ item }}"
         dest: "{{ ocp.bin_dir }}"
-        mode: '755'
+        mode: "755"
         exclude:
           - README.md
       loop:
         - "{{ create_cluster_openshift_install_url }}"
         - "{{ create_cluster_openshift_cli_url }}"
+      when: ocp.install_tools
 
 - name: Store Pull Secret to variable
   ansible.builtin.slurp:
-    src: "{{ mirror_registry.pull_secret_file }}"
+    src: "{{ mirror_registry.quay_pull_secret_file }}"
   register: file_content
   # no_log: true
   delegate_to: registry-server
@@ -50,7 +51,5 @@
     pull_secret_json: "{{ file_content.content | b64decode }}"
   no_log: true
 
-- name: Debug
-  debug:
-    var: "{{ pull_secret_json }}"
-...
+- name: Populate install config
+  ansible.builtin.include_tasks: populate_install_config.yaml

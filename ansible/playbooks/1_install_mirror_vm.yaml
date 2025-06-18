@@ -4,6 +4,12 @@
   hosts: localhost
 
   tasks:
+    - name: Hypervisor common tasks
+      ansible.builtin.include_role:
+        name: hypervisor_common
+
     - name: Download Fedora Server ISO
       ansible.builtin.import_role:
         name: download_fedora_iso
+      vars:
+        download_fedora_iso_deploy_on: "{{ deploy_on }}"
